@@ -5,9 +5,10 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QTimer>
+#include <QFileDialog>
 
-#include "view.h"
-#include "Model.h"
+#include "View/view.h"
+#include "Model/Model.h"
 
 class Controller : public QWidget {
   Q_OBJECT
@@ -19,6 +20,7 @@ class Controller : public QWidget {
   void paintEvent(QPaintEvent*) override;
 
  private:
+  void RequestFilepath();
   Model* model_;
   View* view_;
 };

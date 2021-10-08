@@ -21,7 +21,7 @@ find_package(Qt${QT_VERSION} COMPONENTS ${REQUIRED_LIBS} REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wextra -O0")
 
-set(SOURCES main.cpp geometry.h view.cpp model.cpp controller.cpp)
+set(SOURCES main.cpp Model/geometry.h View/view.cpp Model/Model.cpp Controller/controller.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 target_link_libraries(${PROJECT_NAME} ${REQUIRED_LIBS_QUALIFIED})

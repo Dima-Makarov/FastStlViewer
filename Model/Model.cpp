@@ -2,6 +2,7 @@
 #include "Model.h"
 #include <chrono>
 #include <iostream>
+#include <utility>
 
 void Model::Update(int millis) {
 }
@@ -13,9 +14,42 @@ void Model::HandleKeyReleaseEvent(QKeyEvent* event) {
 }
 
 Model::Model() {
-  auto begin = std::chrono::steady_clock::now();
+}
 
-  QFile file("Penetrator4_Edited.stl");
+int Model::Parse32bitInt(int index) {
+  int result;
+  result = static_cast<unsigned char>(stl_bytes_.at(index));
+  result += static_cast<unsigned char>(stl_bytes_.at(index + 1)) << 8;
+  result += static_cast<unsigned char>(stl_bytes_.at(index + 2)) << 16;
+  result += static_cast<unsigned char>(stl_bytes_.at(index + 3)) << 24;
+  return result;
+}
+
+float Model::Parse32bitfloat(int index) {
+  int result = 0;
+  int i1 = static_cast<unsigned char>(stl_bytes_.at(index));
+  int i2 = static_cast<unsigned char>(stl_bytes_.at(index + 1));
+  int i3 = static_cast<unsigned char>(stl_bytes_.at(index + 2));
+  int i4 = static_cast<unsigned char>(stl_bytes_.at(index + 3));
+
+  result = i1;
+  result += i2 << 8;
+  result += i3 << 16;
+  result += i4 << 24;
+  float ans = *reinterpret_cast<float*>(&result);
+  return ans;
+}
+
+std::vector<Triangle> Model::GetTriangles() {
+  return triangles_;
+}
+
+void Model::LoadModel(const QString& filepath) {
+  if(filepath.isEmpty()) {
+    return;
+  }
+  triangles_.clear();
+  QFile file(filepath);
   file.open(QIODevice::ReadOnly);
   stl_bytes_ = file.readAll();
   int index = 0;
@@ -55,35 +89,4 @@ Model::Model() {
                             Vec3f(vertex_2_x, vertex_2_y, vertex_2_z),
                             Vec3f(vertex_3_x, vertex_3_y, vertex_3_z));
   }
-  auto end = std::chrono::steady_clock::now();
-  auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-  std::cout << "time: " << elapsed_ms.count() << std::endl;
-}
-
-int Model::Parse32bitInt(int index) {
-  int result;
-  result = static_cast<unsigned char>(stl_bytes_.at(index));
-  result += static_cast<unsigned char>(stl_bytes_.at(index + 1)) << 8;
-  result += static_cast<unsigned char>(stl_bytes_.at(index + 2)) << 16;
-  result += static_cast<unsigned char>(stl_bytes_.at(index + 3)) << 24;
-  return result;
-}
-
-float Model::Parse32bitfloat(int index) {
-  int result = 0;
-  int i1 = static_cast<unsigned char>(stl_bytes_.at(index));
-  int i2 = static_cast<unsigned char>(stl_bytes_.at(index + 1));
-  int i3 = static_cast<unsigned char>(stl_bytes_.at(index + 2));
-  int i4 = static_cast<unsigned char>(stl_bytes_.at(index + 3));
-
-  result = i1;
-  result += i2 << 8;
-  result += i3 << 16;
-  result += i4 << 24;
-  float ans = *reinterpret_cast<float*>(&result);
-  return ans;
-}
-
-std::vector<Triangle> Model::GetTriangles() {
-  return triangles_;
 }

@@ -22,6 +22,7 @@ class Model : public QObject {
   void HandleKeyPressEvent(QKeyEvent* event);
   void HandleKeyReleaseEvent(QKeyEvent* event);
   std::vector<Triangle> GetTriangles();
+  void LoadModel(const QString& filepath);
 
  private:
   std::vector<Triangle> triangles_;
