@@ -12,6 +12,7 @@ std::vector<Triangle> ModelLoader::LoadModel(const QString& filepath) {
   index += 80;
   int number_of_faces = Parse32bitInt(stl_bytes,index);
   index += 4;
+
   triangles.reserve(number_of_faces);
   for (int i = 0; i < number_of_faces; i++) {
     std::vector<float> floats(12);

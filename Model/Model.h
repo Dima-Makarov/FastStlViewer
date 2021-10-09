@@ -12,7 +12,7 @@ class Model : public QObject {
   void Update(int millis);
   void HandleKeyPressEvent(QKeyEvent* event);
   void HandleKeyReleaseEvent(QKeyEvent* event);
-  std::vector<Triangle> GetTriangles();
+  const std::vector<Triangle>& GetTriangles();
   void LoadModel(const QString& filepath);
 
  private:

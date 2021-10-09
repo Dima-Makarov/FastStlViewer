@@ -11,7 +11,7 @@ void Model::HandleKeyReleaseEvent(QKeyEvent* event) {
 
 Model::Model() = default;
 
-std::vector<Triangle> Model::GetTriangles() {
+const std::vector<Triangle>& Model::GetTriangles() {
   return triangles_;
 }
 
