@@ -66,6 +66,7 @@ void Controller::mouseReleaseEvent(QMouseEvent* e) {
 }
 
 void Controller::wheelEvent(QWheelEvent* e) {
-  view_->MouseScale(static_cast<double>(e->angleDelta().y()) / 20);
+  QRect geom = this->window()->geometry();
+  view_->MouseScale(static_cast<double>(e->angleDelta().y()), e->position(), geom);
   repaint();
 }

@@ -80,12 +80,19 @@ void View::MousePan(int dx, int dy) {
   pan_offset_ = {pan_offset_.x() + dx, pan_offset_.y() + dy};
 }
 
-void View::MouseScale(double ds) {
+void View::MouseScale(double ds, QPointF cursor_position, QRect geom) {
+  QPointF win_center = {static_cast<qreal>(-geom.left() + geom.right()) / 2,
+                        static_cast<qreal>(-geom.top() + geom.bottom()) / 2};
+  QPointF pos = win_center + pan_offset_ - cursor_position;
   if (ds < 0) {
     scale_ /= 1.5;
+    pos /= 3;
+    pos *= -1;
   } else {
     scale_ *= 1.5;
+    pos *= 0.5;
   }
+  MousePan(pos.x(), pos.y());
 }
 
 

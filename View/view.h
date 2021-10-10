@@ -13,7 +13,7 @@ class View {
   [[nodiscard]] const QPushButton& GetLoadFileButton() const;
   void MouseRotate(int dx, int dy);
   void MousePan(int dx, int dy);
-  void MouseScale(double ds);
+  void MouseScale(double ds, QPointF cursor_position, QRect geom);
   void UpdateTriangles(const std::vector<Triangle>& triangles);
 
  private:
