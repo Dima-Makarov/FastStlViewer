@@ -11,10 +11,14 @@ class View {
   explicit View(QWidget* parent, Model* model);
   void Update(QPainter* painter);
   [[nodiscard]] const QPushButton& GetLoadFileButton() const;
-  void MouseMove(int dx, int dy);
+  void MouseRotate(int dx, int dy);
+  void MousePan(int dx, int dy);
+  void MouseScale(double ds);
   void UpdateTriangles(const std::vector<Triangle>& triangles);
 
  private:
+  QPoint pan_offset_;
+  double scale_ = 5.0;
   static constexpr double kPixelToAngleCoefficient = 0.1;
   std::vector<Triangle> triangles_;
   mat<3,3> transform_matrix_;

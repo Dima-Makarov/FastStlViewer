@@ -33,22 +33,39 @@ void Controller::RequestFilepath() {
 }
 
 void Controller::mousePressEvent(QMouseEvent* e) {
-  is_lkm_pressed = true;
+  if(e->button() == Qt::MouseButton::LeftButton) {
+    is_lmb_pressed = true;
+    lmb_prev_position_ = {e->x(), e->y()};
+  }
+  if(e->button() == Qt::MouseButton::RightButton) {
+    is_rmb_pressed = true;
+    rmb_prev_position_ = {e->x(), e->y()};
+  }
 }
 
 void Controller::mouseMoveEvent(QMouseEvent* e) {
-  if (is_lkm_pressed) {
-    if(previous_x_position_ == 0 && previous_y_position_ == 0) {
-      previous_x_position_ = e->x();
-      previous_y_position_ = e->y();
-    }
-    view_->MouseMove(e->x() - previous_x_position_, e->y() - previous_y_position_);
-    previous_x_position_ = e->x();
-    previous_y_position_ = e->y();
+  if (is_lmb_pressed) {
+    view_->MouseRotate(e->x() - lmb_prev_position_.first, e->y() - lmb_prev_position_.second);
+    lmb_prev_position_ = {e->x(), e->y()};
+    repaint();
+  }
+  if (is_rmb_pressed) {
+    view_->MousePan(e->x() - rmb_prev_position_.first, e->y() - rmb_prev_position_.second);
+    rmb_prev_position_ = {e->x(), e->y()};
     repaint();
   }
 }
 
 void Controller::mouseReleaseEvent(QMouseEvent* e) {
-  is_lkm_pressed = false;
+  if(e->button() == Qt::MouseButton::LeftButton) {
+    is_lmb_pressed = false;
+  }
+  if(e->button() == Qt::MouseButton::RightButton) {
+    is_rmb_pressed = false;
+  }
+}
+
+void Controller::wheelEvent(QWheelEvent* e) {
+  view_->MouseScale(static_cast<double>(e->angleDelta().y()) / 20);
+  repaint();
 }

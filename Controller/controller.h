@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QPainter>
 #include <QTimer>
 #include <QFileDialog>
@@ -12,10 +13,11 @@
 #include "Model/Model.h"
 
 class Controller : public QWidget {
-  Q_OBJECT
+ Q_OBJECT
  public:
   Controller();
   ~Controller() override;
+  void wheelEvent(QWheelEvent* e) override;
   void mousePressEvent(QMouseEvent* e) override;
   void mouseReleaseEvent(QMouseEvent* e) override;
   void mouseMoveEvent(QMouseEvent* e) override;
@@ -24,9 +26,10 @@ class Controller : public QWidget {
   void paintEvent(QPaintEvent*) override;
 
  private:
-  int previous_x_position_ = 0;
-  int previous_y_position_ = 0;
-  bool is_lkm_pressed = false;
+  std::pair<int, int> lmb_prev_position_;
+  std::pair<int, int> rmb_prev_position_;
+  bool is_lmb_pressed = false;
+  bool is_rmb_pressed = false;
   void RequestFilepath();
   Model* model_;
   View* view_;
