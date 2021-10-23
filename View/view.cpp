@@ -13,24 +13,24 @@ View::View(QWidget* parent, Model* model)
 
 void View::Update(QPainter* painter) {
   painter->translate(painter->window().center() + pan_offset_);
-  painter->drawEllipse(camera_.GetPosition().y * scale_,
-                       camera_.GetPosition().x * scale_,
-                       10 * scale_,
-                       10 * scale_);
+  painter->drawEllipse(static_cast<int>(camera_.GetPosition().y * scale_),
+                       static_cast<int>(camera_.GetPosition().x * scale_),
+                       static_cast<int>(10 * scale_),
+                       static_cast<int>(10 * scale_));
   painter->drawEllipse(-1, -1, 2, 2);
   for (auto& triangle: triangles_) {
-    QLine l1(triangle.vertex1.y * scale_,
-             triangle.vertex1.x * scale_,
-             triangle.vertex2.y * scale_,
-             triangle.vertex2.x * scale_);
-    QLine l2(triangle.vertex2.y * scale_,
-             triangle.vertex2.x * scale_,
-             triangle.vertex3.y * scale_,
-             triangle.vertex3.x * scale_);
-    QLine l3(triangle.vertex3.y * scale_,
-             triangle.vertex3.x * scale_,
-             triangle.vertex1.y * scale_,
-             triangle.vertex1.x * scale_);
+    QLine l1(static_cast<int>(triangle.vertex1.y * scale_),
+             static_cast<int>(triangle.vertex1.x * scale_),
+             static_cast<int>(triangle.vertex2.y * scale_),
+             static_cast<int>(triangle.vertex2.x * scale_));
+    QLine l2(static_cast<int>(triangle.vertex2.y * scale_),
+             static_cast<int>(triangle.vertex2.x * scale_),
+             static_cast<int>(triangle.vertex3.y * scale_),
+             static_cast<int>(triangle.vertex3.x * scale_));
+    QLine l3(static_cast<int>(triangle.vertex3.y * scale_),
+             static_cast<int>(triangle.vertex3.x * scale_),
+             static_cast<int>(triangle.vertex1.y * scale_),
+             static_cast<int>(triangle.vertex1.x * scale_));
 
     painter->drawLine(l1);
     painter->drawLine(l2);
@@ -45,7 +45,8 @@ const QPushButton& View::GetLoadFileButton() const {
 void View::MouseRotate(int dx_i, int dy_i) {
   double dx = static_cast<double>(dx_i) / 360 * 2 * M_PI;
   double dy = -static_cast<double>(dy_i) / 360 * 2 * M_PI;
-  // std::cout << dx << " " << dy << std::endl;
+  dx /= 5;
+  dy /= 5;
   mat<3, 3> x_rotate;
   x_rotate.rows[0][0] = 1;
   x_rotate.rows[1][1] = cos(dx);
@@ -92,7 +93,7 @@ void View::MouseScale(double ds, QPointF cursor_position, QRect geom) {
     scale_ *= 1.5;
     pos *= 0.5;
   }
-  MousePan(pos.x(), pos.y());
+  MousePan(static_cast<int>(pos.x()), static_cast<int>(pos.y()));
 }
 
 

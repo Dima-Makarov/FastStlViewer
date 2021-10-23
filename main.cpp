@@ -5,7 +5,12 @@
 
 int main(int argc, char* argv[]) {
   QApplication qapp(argc, argv);
-  Controller controller;
+  std::vector<QString> args;
+  args.reserve(argc);
+  for (int i = 0; i < argc; i++) {
+    args.emplace_back(argv[i]);
+  }
+  Controller controller(args);
   controller.show();
   return QApplication::exec();
 }

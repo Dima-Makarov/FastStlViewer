@@ -1,11 +1,15 @@
 
 #include "controller.h"
 
-Controller::Controller() : QWidget(nullptr),
-                           model_(new Model()),
-                           view_(new View(this, model_)) {
+Controller::Controller(const std::vector<QString>& args) : QWidget(nullptr),
+                                                           model_(new Model()),
+                                                           view_(new View(this, model_)) {
   connect(&view_->GetLoadFileButton(), &QPushButton::clicked, this, &::Controller::RequestFilepath);
   resize(1500, 700);
+  if(args.size() > 1) {
+    model_->LoadModel(args[1]);
+    view_->UpdateTriangles(model_->GetTriangles());
+  }
   repaint();
 }
 

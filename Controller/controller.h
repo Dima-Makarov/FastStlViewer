@@ -15,7 +15,7 @@
 class Controller : public QWidget {
  Q_OBJECT
  public:
-  Controller();
+  Controller(const std::vector<QString>& args);
   ~Controller() override;
   void wheelEvent(QWheelEvent* e) override;
   void mousePressEvent(QMouseEvent* e) override;
