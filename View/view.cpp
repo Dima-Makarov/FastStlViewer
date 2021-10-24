@@ -13,12 +13,11 @@ View::View(QWidget* parent, Model* model)
 
 void View::Update(QPainter* painter) {
   painter->translate(painter->window().center() + pan_offset_);
-  painter->drawEllipse(static_cast<int>(camera_.GetPosition().y * scale_),
-                       static_cast<int>(camera_.GetPosition().x * scale_),
-                       static_cast<int>(10 * scale_),
-                       static_cast<int>(10 * scale_));
   painter->drawEllipse(-1, -1, 2, 2);
-  for (auto& triangle: triangles_) {
+  for (auto triangle: triangles_) {
+    triangle.vertex1 = transform_matrix_ * triangle.vertex1;
+    triangle.vertex2 = transform_matrix_ * triangle.vertex2;
+    triangle.vertex3 = transform_matrix_ * triangle.vertex3;
     QLine l1(static_cast<int>(triangle.vertex1.y * scale_),
              static_cast<int>(triangle.vertex1.x * scale_),
              static_cast<int>(triangle.vertex2.y * scale_),
@@ -43,38 +42,41 @@ const QPushButton& View::GetLoadFileButton() const {
 }
 
 void View::MouseRotate(int dx_i, int dy_i) {
-  double dx = static_cast<double>(dx_i) / 360 * 2 * M_PI;
+  double dx = -static_cast<double>(dx_i) / 360 * 2 * M_PI;
   double dy = -static_cast<double>(dy_i) / 360 * 2 * M_PI;
-  dx /= 5;
-  dy /= 5;
-  mat<3, 3> x_rotate;
-  x_rotate.rows[0][0] = 1;
-  x_rotate.rows[1][1] = cos(dx);
-  x_rotate.rows[1][2] = sin(dx);
-  x_rotate.rows[2][1] = -sin(dx);
-  x_rotate.rows[2][2] = cos(dx);
+  dx /= 3;
+  dy /= 3;
   mat<3, 3> y_rotate;
   y_rotate.rows[1][1] = 1;
   y_rotate.rows[0][0] = cos(dy);
   y_rotate.rows[2][0] = sin(dy);
   y_rotate.rows[2][2] = cos(dy);
   y_rotate.rows[0][2] = -sin(dy);
-  transform_matrix_ = x_rotate * y_rotate;
-  for (auto& triangle: triangles_) {
-    triangle.vertex1 = transform_matrix_ * triangle.vertex1;
-    triangle.vertex2 = transform_matrix_ * triangle.vertex2;
-    triangle.vertex3 = transform_matrix_ * triangle.vertex3;
-  }
-  camera_.SetPosition(transform_matrix_ * camera_.GetPosition());
+  transform_matrix_ = y_rotate * transform_matrix_;
+
+  Vec3f vertical;
+  vertical.x = 0;
+  vertical.y = 0;
+  vertical.z = 1;
+  vertical = transform_matrix_ * vertical;
+  double x = vertical.x;
+  double y = vertical.y;
+  double z = vertical.z;
+  mat<3, 3> z_rotate;
+  z_rotate.rows[0][0] = cos(dx) + (1 - cos(dx)) * x * x;
+  z_rotate.rows[1][0] = (1 - cos(dx)) * x * y - (sin(dx) * z);
+  z_rotate.rows[2][0] = (1 - cos(dx)) * x * z + sin(dx) * y;
+  z_rotate.rows[0][1] = (1 - cos(dx)) * y * z + sin(dx) * z;
+  z_rotate.rows[1][1] = cos(dx) + (1 - cos(dx)) * y * y;
+  z_rotate.rows[2][1] = (1 - cos(dx)) * y * z - sin(dx) * x;
+  z_rotate.rows[0][2] = (1 - cos(dx)) * z * x - sin(dx) * y;
+  z_rotate.rows[1][2] = (1 - cos(dx)) * z * y + sin(dx) * x;
+  z_rotate.rows[2][2] = cos(dx) + (1 - cos(dx)) * z * z;
+  transform_matrix_ = z_rotate * transform_matrix_;
 }
 
 void View::UpdateTriangles(const std::vector<Triangle>& triangles) {
   triangles_ = triangles;
-  for (auto& i: triangles_) {
-    i.vertex1 = i.vertex1;
-    i.vertex2 = i.vertex2;
-    i.vertex3 = i.vertex3;
-  }
 }
 
 void View::MousePan(int dx, int dy) {
