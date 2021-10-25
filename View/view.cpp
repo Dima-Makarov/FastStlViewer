@@ -14,27 +14,26 @@ View::View(QWidget* parent, Model* model)
 void View::Update(QPainter* painter) {
   painter->translate(painter->window().center() + pan_offset_);
   painter->drawEllipse(-1, -1, 2, 2);
+  Vec3f camera(0, 0, 1);
   for (auto triangle: triangles_) {
+    triangle.normal = transform_matrix_ * triangle.normal;
     triangle.vertex1 = transform_matrix_ * triangle.vertex1;
     triangle.vertex2 = transform_matrix_ * triangle.vertex2;
     triangle.vertex3 = transform_matrix_ * triangle.vertex3;
-    QLine l1(static_cast<int>(triangle.vertex1.y * scale_),
-             static_cast<int>(triangle.vertex1.x * scale_),
-             static_cast<int>(triangle.vertex2.y * scale_),
-             static_cast<int>(triangle.vertex2.x * scale_));
-    QLine l2(static_cast<int>(triangle.vertex2.y * scale_),
-             static_cast<int>(triangle.vertex2.x * scale_),
-             static_cast<int>(triangle.vertex3.y * scale_),
-             static_cast<int>(triangle.vertex3.x * scale_));
-    QLine l3(static_cast<int>(triangle.vertex3.y * scale_),
-             static_cast<int>(triangle.vertex3.x * scale_),
-             static_cast<int>(triangle.vertex1.y * scale_),
-             static_cast<int>(triangle.vertex1.x * scale_));
-
-    painter->drawLine(l1);
-    painter->drawLine(l2);
-    painter->drawLine(l3);
+    double intensity = triangle.normal * camera.normalize();
+    if (intensity > 0) {
+      QColor color;
+      color.setHsv(21, 200, intensity * 155 + 100);
+      QPolygonF polygon;
+      polygon << QPointF(triangle.vertex1.y * scale_, triangle.vertex1.x * scale_)
+              << QPointF(triangle.vertex2.y * scale_, triangle.vertex2.x * scale_)
+              << QPointF(triangle.vertex3.y * scale_, triangle.vertex3.x * scale_);
+      painter->setBrush(QBrush(color));
+      painter->setPen(color);
+      painter->drawPolygon(polygon);
+    }
   }
+  painter->drawLine(QLine(0, 0, camera.y * 100, camera.x * 100));
 }
 
 const QPushButton& View::GetLoadFileButton() const {
@@ -54,10 +53,7 @@ void View::MouseRotate(int dx_i, int dy_i) {
   y_rotate.rows[0][2] = -sin(dy);
   transform_matrix_ = y_rotate * transform_matrix_;
 
-  Vec3f vertical;
-  vertical.x = 0;
-  vertical.y = 0;
-  vertical.z = 1;
+  Vec3f vertical(0, 0, 1);
   vertical = transform_matrix_ * vertical;
   double x = vertical.x;
   double y = vertical.y;
@@ -77,6 +73,20 @@ void View::MouseRotate(int dx_i, int dy_i) {
 
 void View::UpdateTriangles(const std::vector<Triangle>& triangles) {
   triangles_ = triangles;
+  Vec3f center_point;
+  for (auto& triangle: triangles_) {
+    center_point = center_point + triangle.vertex1;
+    center_point = center_point + triangle.vertex2;
+    center_point = center_point + triangle.vertex3;
+  }
+  center_point.x /= triangles_.size()*3;
+  center_point.y /= triangles_.size()*3;
+  center_point.z /= triangles_.size()*3;
+  for (auto& triangle: triangles_) {
+    triangle.vertex1 = triangle.vertex1 - center_point;
+    triangle.vertex2 = triangle.vertex2 - center_point;
+    triangle.vertex3 = triangle.vertex3 - center_point;
+  }
 }
 
 void View::MousePan(int dx, int dy) {

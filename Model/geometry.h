@@ -27,7 +27,9 @@ struct vec {
 template<int n>
 double operator*(const vec<n>& lhs, const vec<n>& rhs) {
   double ret = 0;
-  for (int i = n; i--; ret += lhs[i] * rhs[i]);
+  for (int i = 0; i < n; i++) {
+    ret += lhs[i] * rhs[i];
+  }
   return ret;
 }
 
