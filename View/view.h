@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include "Model/Model.h"
 #include "camera.h"
-
+#include "default_plane.h"
 class View {
  public:
   explicit View(QWidget* parent, Model* model);
@@ -26,4 +26,7 @@ class View {
   QWidget* parent_;
   Model* model_;
   QPushButton load_file_;
+
+  void DrawDefaultPolygon(QPainter* painter);
+  void DrawModel(QPainter* painter);
 };

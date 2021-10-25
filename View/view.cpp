@@ -11,29 +11,47 @@ View::View(QWidget* parent, Model* model)
   }
 }
 
+void View::DrawDefaultPolygon(QPainter* painter) {
+  painter->save();
+  QPolygonF default_polygon;
+  DefaultPlane default_plane;
+  default_plane = transform_matrix_ * default_plane;
+  default_polygon << QPointF(default_plane.corner_1_.y * scale_, default_plane.corner_1_.x * scale_)
+                  << QPointF(default_plane.corner_2_.y * scale_, default_plane.corner_2_.x * scale_)
+                  << QPointF(default_plane.corner_3_.y * scale_, default_plane.corner_3_.x * scale_)
+                  << QPointF(default_plane.corner_4_.y * scale_,
+                             default_plane.corner_4_.x * scale_);
+  painter->setBrush(QBrush(QColor(133, 133, 133)));
+  painter->drawPolygon(default_polygon);
+  painter->setPen(QColor(100, 100, 100));
+  for (const auto& i: default_plane.grid_lines) {
+    painter->drawLine(i.second.y * scale_,
+                      i.second.x * scale_,
+                      i.first.y * scale_,
+                      i.first.x * scale_);
+  }
+  painter->setPen(QPen(QBrush(QColor(255, 0, 0)),5));
+  painter->drawLine(default_plane.x_axis.first.y * scale_,
+                    default_plane.x_axis.first.x * scale_,
+                    default_plane.x_axis.second.y * scale_,
+                    default_plane.x_axis.second.x * scale_);
+  painter->setPen(QPen(QBrush(QColor(0, 255, 0)),5));
+  painter->drawLine(default_plane.y_axis.first.y * scale_,
+                    default_plane.y_axis.first.x * scale_,
+                    default_plane.y_axis.second.y * scale_,
+                    default_plane.y_axis.second.x * scale_);
+  painter->setPen(QPen(QBrush(QColor(0, 0, 255)),5));
+  painter->drawLine(default_plane.z_axis.first.y * scale_,
+                    default_plane.z_axis.first.x * scale_,
+                    default_plane.z_axis.second.y * scale_,
+                    default_plane.z_axis.second.x * scale_);
+  painter->restore();
+}
+
 void View::Update(QPainter* painter) {
   painter->translate(painter->window().center() + pan_offset_);
-  painter->drawEllipse(-1, -1, 2, 2);
-  Vec3f camera(0, 0, 1);
-  for (auto triangle: triangles_) {
-    triangle.normal = transform_matrix_ * triangle.normal;
-    triangle.vertex1 = transform_matrix_ * triangle.vertex1;
-    triangle.vertex2 = transform_matrix_ * triangle.vertex2;
-    triangle.vertex3 = transform_matrix_ * triangle.vertex3;
-    double intensity = triangle.normal * camera.normalize();
-    if (intensity > 0) {
-      QColor color;
-      color.setHsv(21, 200, intensity * 155 + 100);
-      QPolygonF polygon;
-      polygon << QPointF(triangle.vertex1.y * scale_, triangle.vertex1.x * scale_)
-              << QPointF(triangle.vertex2.y * scale_, triangle.vertex2.x * scale_)
-              << QPointF(triangle.vertex3.y * scale_, triangle.vertex3.x * scale_);
-      painter->setBrush(QBrush(color));
-      painter->setPen(color);
-      painter->drawPolygon(polygon);
-    }
-  }
-  painter->drawLine(QLine(0, 0, camera.y * 100, camera.x * 100));
+  DrawDefaultPolygon(painter);
+  DrawModel(painter);
 }
 
 const QPushButton& View::GetLoadFileButton() const {
@@ -73,20 +91,6 @@ void View::MouseRotate(int dx_i, int dy_i) {
 
 void View::UpdateTriangles(const std::vector<Triangle>& triangles) {
   triangles_ = triangles;
-  Vec3f center_point;
-  for (auto& triangle: triangles_) {
-    center_point = center_point + triangle.vertex1;
-    center_point = center_point + triangle.vertex2;
-    center_point = center_point + triangle.vertex3;
-  }
-  center_point.x /= triangles_.size()*3;
-  center_point.y /= triangles_.size()*3;
-  center_point.z /= triangles_.size()*3;
-  for (auto& triangle: triangles_) {
-    triangle.vertex1 = triangle.vertex1 - center_point;
-    triangle.vertex2 = triangle.vertex2 - center_point;
-    triangle.vertex3 = triangle.vertex3 - center_point;
-  }
 }
 
 void View::MousePan(int dx, int dy) {
@@ -106,6 +110,28 @@ void View::MouseScale(double ds, QPointF cursor_position, QRect geom) {
     pos *= 0.5;
   }
   MousePan(static_cast<int>(pos.x()), static_cast<int>(pos.y()));
+}
+
+void View::DrawModel(QPainter* painter) {
+  Vec3f camera(0, 0, 1);
+  for (auto triangle: triangles_) {
+    triangle.normal = transform_matrix_ * triangle.normal;
+    triangle.vertex1 = transform_matrix_ * triangle.vertex1;
+    triangle.vertex2 = transform_matrix_ * triangle.vertex2;
+    triangle.vertex3 = transform_matrix_ * triangle.vertex3;
+    double intensity = triangle.normal * camera;
+    if (intensity > 0) {
+      QColor color;
+      color.setHsv(21, 200, intensity * 155 + 100);
+      QPolygonF polygon;
+      polygon << QPointF(triangle.vertex1.y * scale_, triangle.vertex1.x * scale_)
+              << QPointF(triangle.vertex2.y * scale_, triangle.vertex2.x * scale_)
+              << QPointF(triangle.vertex3.y * scale_, triangle.vertex3.x * scale_);
+      painter->setBrush(QBrush(color));
+      painter->setPen(color);
+      painter->drawPolygon(polygon);
+    }
+  }
 }
 
 

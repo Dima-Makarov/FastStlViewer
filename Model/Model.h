@@ -17,8 +17,6 @@ class Model : public QObject {
 
  private:
   std::vector<Triangle> triangles_;
-
-  QByteArray stl_bytes_;
 };
 
 
