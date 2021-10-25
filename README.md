@@ -2,4 +2,5 @@
 Work in progress. Written in C++ & Qt5 
 Currently supports opening and viewing (pan, zoom and rotate) stl binary files 
 # Screenshot
-![image](https://user-images.githubusercontent.com/79033065/138608224-4d6a5442-c287-40e4-a9f5-3ac2ba4465af.png)
+![image](https://user-images.githubusercontent.com/79033065/138745247-1bac204e-e2a1-44de-acec-1872ee0e3d19.png)
+
