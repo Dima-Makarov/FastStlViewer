@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cmath>
 #include <cassert>
 #include <iostream>
@@ -299,8 +300,19 @@ struct dt<1> {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-typedef vec<2> Vec2f;
 typedef vec<3> Vec3f;
 typedef vec<4> Vec4f;
-
 Vec3f cross(const Vec3f& v1, const Vec3f& v2);
+
+typedef vec<2> Vec2f;
+
+/////////////////////////////////////////////////////////////////////////////////
+
+struct Triangle {
+  Triangle(Vec3f n, Vec3f v1, Vec3f v2, Vec3f v3)
+      : normal(n), vertex1(v1), vertex2(v2), vertex3(v3) {};
+  Vec3f normal;
+  Vec3f vertex1;
+  Vec3f vertex2;
+  Vec3f vertex3;
+};

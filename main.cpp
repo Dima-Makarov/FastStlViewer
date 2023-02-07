@@ -11,7 +11,8 @@ int main(int argc, char* argv[]) {
     args.emplace_back(argv[i]);
   }
   if(argc == 1) {
-    args.emplace_back("C:/Dima/mama i am programmer/projects/StlViewer/cmake-build-debug/obama_prism.stl");
+    //args.emplace_back(R"(C:\Users\User\Downloads\1903_Wright_Flyer_-_3D_model_by_The_Smithsonian_Institution_-_Sketchfab.stl)");
+    args.emplace_back(R"(C:\Users\User\Downloads\sphere3.stl)");
   }
   Controller controller(args);
   controller.show();
